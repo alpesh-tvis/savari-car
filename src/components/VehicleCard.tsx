@@ -1,6 +1,7 @@
 import { Users, Fuel, Gauge } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
+import { useNavigate } from "react-router-dom";
 
 interface VehicleCardProps {
   name: string;
@@ -10,6 +11,7 @@ interface VehicleCardProps {
   passengers: number;
   transmission: string;
   fuelType: string;
+  id?: string;
 }
 
 export const VehicleCard = ({ 
@@ -19,8 +21,13 @@ export const VehicleCard = ({
   price, 
   passengers, 
   transmission, 
-  fuelType 
+  fuelType,
+  id
 }: VehicleCardProps) => {
+  const navigate = useNavigate();
+  
+  const vehicleId = id || name.toLowerCase().replace(/\s+/g, '-');
+  
   return (
     <Card className="overflow-hidden hover:shadow-medium transition-all duration-300 group cursor-pointer bg-gradient-card border border-border">
       <div className="relative overflow-hidden aspect-[4/3]">
@@ -55,7 +62,11 @@ export const VehicleCard = ({
           </div>
         </div>
 
-        <Button className="w-full" variant="default">
+        <Button 
+          className="w-full" 
+          variant="default"
+          onClick={() => navigate(`/vehicle/${vehicleId}`)}
+        >
           View Details
         </Button>
       </div>
