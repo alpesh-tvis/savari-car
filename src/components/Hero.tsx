@@ -1,10 +1,23 @@
 import { Search, Calendar, MapPin } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import heroImage from "@/assets/hero-car.jpg";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+
+const popularLocations = [
+  "Barcelona Airport (BCN)",
+  "Madrid Airport (MAD)",
+  "Valencia Airport (VLC)",
+  "Barcelona City Center",
+  "Madrid City Center",
+  "Valencia City Center",
+  "Seville Airport (SVQ)",
+  "Málaga Airport (AGP)",
+  "Bilbao Airport (BIO)",
+];
 
 export const Hero = () => {
   const [pickupLocation, setPickupLocation] = useState("");
@@ -18,12 +31,8 @@ export const Hero = () => {
       return;
     }
     
-    toast.success(`Searching vehicles in ${pickupLocation}`);
-    // Scroll to vehicles section
-    const vehiclesSection = document.getElementById("vehicles-section");
-    if (vehiclesSection) {
-      vehiclesSection.scrollIntoView({ behavior: "smooth" });
-    }
+    // Navigate to search results page with query params
+    navigate(`/search-results?location=${encodeURIComponent(pickupLocation)}&pickup=${pickupDate}&return=${returnDate}`);
   };
 
   return (
@@ -52,13 +61,19 @@ export const Hero = () => {
           <div className="bg-card rounded-2xl shadow-strong p-6 backdrop-blur-sm">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border">
-                <MapPin className="h-5 w-5 text-accent" />
-                <Input 
-                  placeholder="Pickup location" 
-                  value={pickupLocation}
-                  onChange={(e) => setPickupLocation(e.target.value)}
-                  className="border-0 bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
+                <MapPin className="h-5 w-5 text-accent flex-shrink-0" />
+                <Select value={pickupLocation} onValueChange={setPickupLocation}>
+                  <SelectTrigger className="border-0 bg-transparent focus:ring-0 focus:ring-offset-0">
+                    <SelectValue placeholder="Select pickup location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {popularLocations.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex items-center gap-3 p-3 rounded-lg bg-secondary/50 border border-border">
                 <Calendar className="h-5 w-5 text-accent" />
