@@ -43,7 +43,7 @@ const Index = () => {
       <Header />
       <Hero />
       
-      <section className="py-20">
+      <section id="vehicles-section" className="py-20">
         <div className="container mx-auto px-4">
           <div className="mb-12">
             <h2 className="text-3xl font-bold text-foreground mb-2">
