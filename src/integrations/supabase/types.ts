@@ -14,7 +14,116 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      booking_photos: {
+        Row: {
+          booking_id: string
+          created_at: string
+          id: string
+          phase: string
+          photo_type: string
+          photo_url: string
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string
+          id?: string
+          phase: string
+          photo_type: string
+          photo_url: string
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string
+          id?: string
+          phase?: string
+          photo_type?: string
+          photo_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_photos_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookings: {
+        Row: {
+          checkin_completed_at: string | null
+          checkin_fuel_level: number | null
+          checkin_mileage: number | null
+          checkin_signature: string | null
+          checkout_completed_at: string | null
+          checkout_fuel_level: number | null
+          checkout_mileage: number | null
+          checkout_signature: string | null
+          created_at: string
+          id: string
+          pickup_date: string
+          pickup_location: string
+          price_per_day: number
+          rental_days: number
+          return_date: string
+          status: string
+          total_price: number
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+          vehicle_name: string
+          vehicle_type: string
+        }
+        Insert: {
+          checkin_completed_at?: string | null
+          checkin_fuel_level?: number | null
+          checkin_mileage?: number | null
+          checkin_signature?: string | null
+          checkout_completed_at?: string | null
+          checkout_fuel_level?: number | null
+          checkout_mileage?: number | null
+          checkout_signature?: string | null
+          created_at?: string
+          id?: string
+          pickup_date: string
+          pickup_location: string
+          price_per_day: number
+          rental_days: number
+          return_date: string
+          status?: string
+          total_price: number
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+          vehicle_name: string
+          vehicle_type: string
+        }
+        Update: {
+          checkin_completed_at?: string | null
+          checkin_fuel_level?: number | null
+          checkin_mileage?: number | null
+          checkin_signature?: string | null
+          checkout_completed_at?: string | null
+          checkout_fuel_level?: number | null
+          checkout_mileage?: number | null
+          checkout_signature?: string | null
+          created_at?: string
+          id?: string
+          pickup_date?: string
+          pickup_location?: string
+          price_per_day?: number
+          rental_days?: number
+          return_date?: string
+          status?: string
+          total_price?: number
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+          vehicle_name?: string
+          vehicle_type?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
