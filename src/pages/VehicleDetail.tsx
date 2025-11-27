@@ -133,7 +133,22 @@ const VehicleDetail = () => {
                   <span className="text-4xl font-bold text-foreground">€{vehicle.price}</span>
                   <span className="text-muted-foreground">/day</span>
                 </div>
-                <Button className="w-full" size="lg" onClick={() => navigate("/auth")}>
+                <Button 
+                  className="w-full" 
+                  size="lg" 
+                  onClick={() => {
+                    const params = new URLSearchParams({
+                      vehicleId: vehicle.id,
+                      vehicleName: vehicle.name,
+                      vehicleType: vehicle.type,
+                      price: vehicle.price.toString(),
+                      location: "Barcelona Airport (BCN)",
+                      pickup: new Date().toISOString().split('T')[0],
+                      return: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+                    });
+                    navigate(`/booking?${params.toString()}`);
+                  }}
+                >
                   Book Now
                 </Button>
                 <p className="text-xs text-muted-foreground text-center mt-3">
