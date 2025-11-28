@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Camera, CheckCircle } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PhotoUploadProps {
   bookingData: any;
@@ -25,14 +26,33 @@ const REQUIRED_PHOTOS = [
 
 export const PhotoUpload = ({ bookingData, updateBookingData }: PhotoUploadProps) => {
   const [uploading, setUploading] = useState<string | null>(null);
+  const { user } = useAuth();
 
   const handlePhotoUpload = async (photoType: string, file: File) => {
+    if (!bookingData.bookingId) {
+      toast({
+        title: "Error",
+        description: "Booking ID not found. Please go back to the confirmation step.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "User not authenticated. Please log in again.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(photoType);
 
     try {
-      // Upload to Supabase Storage
+      // Upload to Supabase Storage - path must start with user ID for RLS policy
       const fileExt = file.name.split('.').pop();
-      const fileName = `${bookingData.bookingId}/${Date.now()}-${photoType.replace(/\s+/g, '-')}.${fileExt}`;
+      const fileName = `${user.id}/${bookingData.bookingId}/${Date.now()}-${photoType.replace(/\s+/g, '-')}.${fileExt}`;
       
       const { error: uploadError } = await supabase.storage
         .from('booking-photos')

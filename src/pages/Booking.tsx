@@ -126,7 +126,8 @@ const Booking = () => {
 
         if (error) throw error;
 
-        setBookingData({ ...bookingData, bookingId: data.id });
+        // Use functional update to ensure we get the latest state
+        setBookingData(prev => ({ ...prev, bookingId: data.id }));
         toast({
           title: "Booking Created",
           description: "Your booking has been confirmed!",
@@ -139,6 +140,16 @@ const Booking = () => {
         });
         return;
       }
+    }
+
+    // Ensure bookingId exists before photo upload step
+    if (currentStep === 4 && !bookingData.bookingId) {
+      toast({
+        title: "Error",
+        description: "Booking not found. Please go back and try again.",
+        variant: "destructive",
+      });
+      return;
     }
 
     if (currentStep === 5) {
@@ -212,7 +223,7 @@ const Booking = () => {
   };
 
   const updateBookingData = (updates: Partial<typeof bookingData>) => {
-    setBookingData({ ...bookingData, ...updates });
+    setBookingData(prev => ({ ...prev, ...updates }));
   };
 
   const CurrentStepComponent = STEPS[currentStep - 1]?.component;
