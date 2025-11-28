@@ -52,7 +52,9 @@ const Booking = () => {
 
   useEffect(() => {
     if (!user) {
-      navigate("/auth");
+      // Preserve current URL so user returns here after login
+      const currentUrl = window.location.pathname + window.location.search;
+      navigate(`/auth?redirect=${encodeURIComponent(currentUrl)}`);
       return;
     }
   }, [user, navigate]);
