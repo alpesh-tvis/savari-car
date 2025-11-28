@@ -9,6 +9,7 @@ import compactImage from "@/assets/compact-1.jpg";
 
 const vehicles = [
   {
+    id: "luxury-sedan",
     name: "Luxury Sedan",
     type: "Premium",
     image: sedanImage,
@@ -18,6 +19,7 @@ const vehicles = [
     fuelType: "Hybrid",
   },
   {
+    id: "premium-suv",
     name: "Premium SUV",
     type: "SUV",
     image: suvImage,
@@ -27,6 +29,7 @@ const vehicles = [
     fuelType: "Diesel",
   },
   {
+    id: "city-compact",
     name: "City Compact",
     type: "Economy",
     image: compactImage,
