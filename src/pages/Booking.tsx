@@ -30,7 +30,7 @@ const STEPS = [
 const Booking = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [bookingData, setBookingData] = useState({
     vehicleId: searchParams.get("vehicleId") || "",
@@ -51,13 +51,13 @@ const Booking = () => {
   });
 
   useEffect(() => {
+    if (loading) return; // Wait for auth to initialize
     if (!user) {
       // Preserve current URL so user returns here after login
       const currentUrl = window.location.pathname + window.location.search;
       navigate(`/auth?redirect=${encodeURIComponent(currentUrl)}`);
-      return;
     }
-  }, [user, navigate]);
+  }, [user, loading, navigate]);
 
   const calculateRentalDays = () => {
     const pickup = new Date(bookingData.pickupDate);
