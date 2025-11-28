@@ -14,16 +14,17 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [name, setName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { signIn, signUp, user } = useAuth();
+  const { signIn, signUp, user, loading } = useAuth();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get("redirect") || "/dashboard";
 
   useEffect(() => {
+    if (loading) return; // Wait for auth to initialize
     if (user) {
       navigate(redirectUrl);
     }
-  }, [user, navigate, redirectUrl]);
+  }, [user, loading, navigate, redirectUrl]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
