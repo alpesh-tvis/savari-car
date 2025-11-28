@@ -1,4 +1,6 @@
 import { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { User as SupabaseUser } from '@supabase/supabase-js';
 
 export interface User {
   id: string;
@@ -14,72 +16,81 @@ export const useAuth = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const storedUser = localStorage.getItem('driveshare_user');
-    if (storedUser) {
-      setUser(JSON.parse(storedUser));
-    }
-    setLoading(false);
-  }, []);
-
-  const signUp = async (email: string, password: string, name: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const existingUsers = JSON.parse(localStorage.getItem('driveshare_users') || '[]');
-    if (existingUsers.find((u: User) => u.email === email)) {
-      throw new Error('User already exists');
-    }
-
-    const newUser: User = {
-      id: Math.random().toString(36).substr(2, 9),
-      email,
-      name,
-      createdAt: new Date().toISOString(),
+    // Get initial session
+    const getSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+      }
+      setLoading(false);
     };
 
-    existingUsers.push({ ...newUser, password });
-    localStorage.setItem('driveshare_users', JSON.stringify(existingUsers));
-    localStorage.setItem('driveshare_user', JSON.stringify(newUser));
-    setUser(newUser);
-    return newUser;
+    getSession();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (session?.user) {
+        setUser(mapSupabaseUser(session.user));
+      } else {
+        setUser(null);
+      }
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const mapSupabaseUser = (supabaseUser: SupabaseUser): User => {
+    return {
+      id: supabaseUser.id,
+      email: supabaseUser.email || '',
+      name: supabaseUser.user_metadata?.name || supabaseUser.email?.split('@')[0] || '',
+      createdAt: supabaseUser.created_at,
+    };
+  };
+
+  const signUp = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: { name }
+      }
+    });
+    
+    if (error) throw error;
+    if (!data.user) throw new Error('Failed to create user');
+    
+    return mapSupabaseUser(data.user);
   };
 
   const signIn = async (email: string, password: string) => {
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 500));
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
     
-    const existingUsers = JSON.parse(localStorage.getItem('driveshare_users') || '[]');
-    const foundUser = existingUsers.find((u: any) => u.email === email && u.password === password);
+    if (error) throw error;
+    if (!data.user) throw new Error('Failed to sign in');
     
-    if (!foundUser) {
-      throw new Error('Invalid email or password');
-    }
-
-    const { password: _, ...userWithoutPassword } = foundUser;
-    localStorage.setItem('driveshare_user', JSON.stringify(userWithoutPassword));
-    setUser(userWithoutPassword);
-    return userWithoutPassword;
+    return mapSupabaseUser(data.user);
   };
 
-  const signOut = () => {
-    localStorage.removeItem('driveshare_user');
+  const signOut = async () => {
+    await supabase.auth.signOut();
     setUser(null);
   };
 
-  const updateProfile = (updates: Partial<User>) => {
+  const updateProfile = async (updates: Partial<User>) => {
     if (!user) return;
     
-    const updatedUser = { ...user, ...updates };
-    localStorage.setItem('driveshare_user', JSON.stringify(updatedUser));
-    setUser(updatedUser);
+    const { error } = await supabase.auth.updateUser({
+      data: updates
+    });
     
-    // Update in users list too
-    const existingUsers = JSON.parse(localStorage.getItem('driveshare_users') || '[]');
-    const userIndex = existingUsers.findIndex((u: any) => u.id === user.id);
-    if (userIndex !== -1) {
-      existingUsers[userIndex] = { ...existingUsers[userIndex], ...updates };
-      localStorage.setItem('driveshare_users', JSON.stringify(existingUsers));
-    }
+    if (error) throw error;
+    
+    setUser({ ...user, ...updates });
   };
 
   return { user, loading, signUp, signIn, signOut, updateProfile };
